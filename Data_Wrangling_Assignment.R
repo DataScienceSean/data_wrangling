@@ -1,5 +1,6 @@
 library(dplyr)
 library(tidyr)
+library(tidyverse)
 
 # Reading the csv file into R
 rf_data = read.csv("refine_original.csv")
@@ -27,14 +28,15 @@ rf_data$company <- replace(rf_data$company, c("phillips", "fillips", "phlips"), 
 # This code produced this error - Error in `$<-.data.frame`(`*tmp*`, company, value = c(10L, 8L, 7L, 13L,  : 
 #replacement has 28 rows, data has 25
 
-
 # Suggestion from FaceBook
 rf_data$company(ifelse(rf_data$company == "phillips","philips",rf_data$company))
 # Result - Error: attempt to apply non-function
-#this makes sence after the fact since I didn't actually tell R to do anything.
+# This code not working makes sence after the fact since I didn't actually tell R to do anything.
 
-#this is my attempt to use mutate and an ifelse statment
+# This is my attempt to use mutate and an ifelse statment
 rf_data$company <- mutate(rf_data$company,ifelse(rf_data$company == "phillips","philips",rf_data$company))
+# This code produced this error - Error in UseMethod("mutate_") : 
+#no applicable method for 'mutate_' applied to an object of class "factor"
 
 # Task 2 - Separating product.code...number into two separate columns.
 # Renaming the first to "product_code" and the second to "product_number"
