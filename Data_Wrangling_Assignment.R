@@ -1,6 +1,8 @@
 library(dplyr)
 library(tidyr)
 library(tidyverse)
+library(dummies)
+library(tibble)
 
 # Reading the csv file into R
 rf_data = read.csv("refine_original.csv")
@@ -38,6 +40,12 @@ rf_data$company <- mutate(rf_data$company,ifelse(rf_data$company == "phillips","
 # This code produced this error - Error in UseMethod("mutate_") : 
 #no applicable method for 'mutate_' applied to an object of class "factor"
 
+# Just had an epiphany!
+rf_data$company <- gsub("phillips", "philips", rf_data$company)
+# Nope, didn't do anything.  Several sets of code act like they work.
+# IE they show up in the console in blue with no errors.
+# But when I call the Dataframe, nothing changed.
+
 # Task 2 - Separating product.code...number into two separate columns.
 # Renaming the first to "product_code" and the second to "product_number"
 rf_data <- rf_data %>% separate("Product.code...number",c("product_code", "product_number"),"-", remove = TRUE)
@@ -59,7 +67,19 @@ rf_data
 # I'm supposed to creat four bionaries for each company name and four bionaries for each product code
 #This looks like the same thing I would do with Task 3 once that is done, I will be able to do this.
 
+# Since I have to add dummy variables and they need to be bianary, I loaded the Dummies package.
+# This is the code I attempted
+rf_data <- cbind(rf_data, dummy(rf_data$Company, sep = "_"))
+# This is the error I received: Error in `[[.default`(x, 1) : subscript out of bounds
+# Is this because I haven't cleaned up the names, or because I can only create one dummy variable?
 
+#saw this https://cloud.r-project.org/web/packages/fastDummies/vignettes/making-dummy-variables.html
+rf_data <- add_column( c("company_philips", "company_akzo", "company_van_houten", "company_unilever", "product_smartphone", "product_tv", "product_laptop", "product_tablet"))
+# This code ruined my dataframe.  Instead of adding columns, I have one row with the column names.
+
+
+
+           
 # Task 6 - Save the Dataframe into a new CSV file named refine_clean.csv
 # Of course, I will run this when Im done.
 write.csv(refine_clean.csv)
