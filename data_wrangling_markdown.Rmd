@@ -1,0 +1,126 @@
+---
+title: "Data Wrangling Assignment"
+author: "Sean F. Larsen"
+date: "January 29, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is the Data Wrangling Assignment from Springboard.  I was provided and Excel file, that needed to be imported into R and a csv file create of the original data.  The data was to be examined, and data cleaned.  When finished it was to be saved into another csv file, then submitted.
+
+## Packages used
+
+I used the readxl, dplyr, tidyr, and dummies packages.
+
+
+```{r echo=FALSE}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(dummies)
+```
+
+## Read the Excel file
+
+I used the read_excel function and created a refine_original vector
+I then wrote the data to a csv file refine_original.csv
+
+```{r echo=FALSE}
+refine_original <- read_excel("refine.xlsx")
+write.csv(refine_original, "refine_original.csv")
+```
+
+## Creating a Dataframe to work with
+
+I used the extracted data refine_original and created a dataframe rf_data.
+I took a look at the entire dataframe and the column names, so I knew what I was working with.
+
+```{r echo=FALSE}
+refine_original <- data.frame(rf_data)
+rf_data
+colnames(rf_data)
+```
+
+## Task 1 Clean Company Names - Use gsub to clean Data
+
+The first portion of the assignement was to clean up the company names.  I used gsub to replace each set of incorrect vales in the company name column. Then I looked at the dataframe to make sure it worked.
+
+```{r}
+rf_data$company <- gsub("phillips", "philips", rf_data$company)
+rf_data$company <- gsub("fillips", "philips", rf_data$company)
+rf_data$company <- gsub("phlips", "philips", rf_data$company)
+rf_data$company <- gsub("Phillips", "philips", rf_data$company)
+rf_data$company <- gsub("phillipS", "philips", rf_data$company)
+rf_data$company <- gsub("AKZO", "akzo", rf_data$company)
+rf_data$company <- gsub("ak zo", "akzo", rf_data$company)
+rf_data$company <- gsub("akz0", "akzo", rf_data$company)
+rf_data$company <- gsub("Akzo", "akzo", rf_data$company)
+rf_data$company <- gsub("Van Houten", "van houten", rf_data$company)
+rf_data$company <- gsub("van Houten", "van houten", rf_data$company)
+rf_data$company <- gsub("unilver", "unilever", rf_data$company)
+rf_data$company <- gsub("Uniliver", "unilever", rf_data$company)
+rf_data
+```
+
+
+## Task 2 - Separating product.code...number into two separate columns.
+
+I needed to separate the column Product.code..number into two columns and rename the first column "product_code" and the second "product_number". Then I checked the data to make sure it worked correctly.
+
+```{r}
+rf_data <- rf_data %>% separate("Product.code...number",c("product_code", "product_number"),"-", remove = TRUE)
+rf_data
+```
+
+## Task 3 - Create a new column an add product categories.
+
+Each product code resprsented a product category.  I decided to create a new column using mutate and copy the product code and replace the code with the coresponding category using the gsub function.
+
+```{r}
+rf_data <- mutate(rf_data, product_category = product_code)
+rf_data$product_category <- gsub("p", "Smartphone", rf_data$product_category)
+rf_data$product_category <- gsub("v", "TV", rf_data$product_category)
+rf_data$product_category <- gsub("x", "Laptop", rf_data$product_category)
+rf_data$product_category <- gsub("q", "Tablet", rf_data$product_category)
+rf_data
+```
+
+## Task 4 - Combine the three address columns into a single column.
+
+There are three address columns, address, city, and country.  I combined these tinto a single column called full_address and separated each piece of data with a space and a comma, uing the unite function.
+
+```{r}
+rf_data <- rf_data %>% unite("full_address", "address", "city", "country", sep = ", ")
+rf_data
+```
+
+## Task 5 - Create Dummy Variables for Company name and Product code.
+For use in possible regretion analysis later, I neede to add dummy variables for both the company name and product code.
+My first attempt was to use the dummy function and the cbind function.  I was able to get it to work but I use a lot more code then I thought. You can see the code in the Data_Wrangling_Assignment.R file.  I settle on using mutate fuction with an ifelse statment.
+
+```{r}
+rf_data <- mutate(rf_data, Company_philips = ifelse(rf_data$company == "philips", 1, 0))
+rf_data <- mutate(rf_data, Company_akzo = ifelse(rf_data$company == "akzo", 1, 0))
+rf_data <- mutate(rf_data, Company_van_houten = ifelse(rf_data$company == "van houten", 1, 0))
+rf_data <- mutate(rf_data, Company_unilever = ifelse(rf_data$company == "unilever", 1, 0))
+rf_data <- mutate(rf_data, product_smartphone = ifelse(rf_data$product_category == "Smartphone", 1, 0))
+rf_data <- mutate(rf_data, product_tv = ifelse(rf_data$product_category == "TV", 1, 0))
+rf_data <- mutate(rf_data, product_laptop = ifelse(rf_data$product_category == "Laptop", 1, 0))
+rf_data <- mutate(rf_data, product_tablet = ifelse(rf_data$product_category == "Tablet", 1, 0))
+rf_data
+```
+
+## Task 6 - Save the Dataframe into a new CSV file.
+
+Once I examined the dataframe and I was happy, I save the dataframe to a CSV file and named it refine_clean.csv
+Then I uploaded my github link and made my submission.
+
+```{r}
+write.csv(rf_data, file = "refine_clean.csv")
+```
+
